@@ -1,24 +1,33 @@
 #ifndef FORK_H
 #define FORK_H
 
-#include "philosopher.h"
+#include <iostream>
+#include <mutex>
+#include <thread>
+
+using namespace std;
 
 class Fork {
+private:
     int id;
+//    int philosopherId;
     bool inUse;
-    Philosopher *philosopher;
 
 public:
+    mutex forkLock;
 
     Fork(int id);
+
+    void aquire();
+    void release();
 
     int getId();
 
     bool getInUse();
     void setInUse(bool inUse);
 
-    Philosopher * getPhilosopher();
-    void setPhilosopher(Philosopher *philosopher);
+//    int getPhilosopherId();
+//    void setPhilosopherId(int philosopherId);
 };
 
 #endif // FORK_H

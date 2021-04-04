@@ -18,10 +18,15 @@ void Fork::setInUse(bool inUse){
     this->inUse = inUse;
 }
 
-Philosopher * Fork::getPhilosopher(){
-    return this->philosopher;
-}
+//int Fork::getPhilosopherId(){
+//    if(this->inUse)
+//        return this->philosopherId;
+//    else{
+//        cout << "WARNING, fork not in use, returing NULL value";
+//        return NULL;
+//    }
+//}
 
-void Fork::setPhilosopher(Philosopher *philosopher){
-    this->philosopher = philosopher;
-}
+//void Fork::setPhilosopherId(int philosopherId){
+//    this->philosopherId = philosopherId;
+//}
