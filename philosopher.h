@@ -13,6 +13,7 @@ using namespace std;
 class Philosopher{
 private:
     string state;
+    int timeSinceEating = 0;
     int id;
     string colourRGB;
     shared_ptr<Fork> leftFork;
@@ -30,6 +31,7 @@ public:
     int getId();
 
     string getState();
+    int getTimeSinceEating();
     void setState(string state);
 
     void print(string text);

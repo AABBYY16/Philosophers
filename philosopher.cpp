@@ -73,6 +73,10 @@ string Philosopher::getState(){
     return this->state;
 }
 
+int Philosopher::getTimeSinceEating(){
+    return this->timeSinceEating;
+}
+
 void Philosopher::setState(string state){
     this->state = state;
 }

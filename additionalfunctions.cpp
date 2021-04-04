@@ -4,7 +4,7 @@
 #include "philosopher.h"
 #include "fork.h"
 
-static void show(vector<Philosopher> *philosophers,vector<shared_ptr<Fork>> *forks, bool *stopCondition){
+static void printCout(vector<Philosopher> *philosophers,vector<shared_ptr<Fork>> *forks, bool *stopCondition){
     string colourRed = "\033[31m";
     string colourGreen = "\033[32m";
     string colourOrange = "\033[33m";

@@ -6,6 +6,7 @@
 #include "philosopher.h"
 #include "fork.h"
 #include "additionalfunctions.cpp"
+#include "statusprinter.h"
 
 using namespace std;
 
@@ -24,7 +25,7 @@ int main(int argc, char *argv[]) {
         size = atoi(argv[1]);
 
 //additional arguments
-    //switches to ugly printing each thread action change(usefull in debugging)
+    //switches to ugly printing each thread action change created in debugging purpose
     bool noPhilosophersOutputPrints = true;
     //program stops after X secs(0 means to never stop)(to as argument as it was forbiden in exercise description)
     int stopAfter = 0;
@@ -55,11 +56,19 @@ int main(int argc, char *argv[]) {
         philosophers.push_back(Philosopher(i, forks.at(leftForkId), forks.at(rightForkId), colourStr, noPhilosophersOutputPrints));
     }
 
-//startWatching
+////startWatching - printCount
+//    bool stopWatchingCondition = false;
+//    thread watcher;
+//    if(noPhilosophersOutputPrints)
+//        watcher = thread(&printCout, &philosophers, &forks, &stopWatchingCondition);
+
+
+//startWatching - StatusPrinter(ncurses library)
     bool stopWatchingCondition = false;
-    thread *watcher;
+    thread watcher;
+    StatusPrinter statusPrinter = StatusPrinter(&philosophers, &forks, &stopWatchingCondition);
     if(noPhilosophersOutputPrints)
-        watcher = new thread(&show, &philosophers, &forks, &stopWatchingCondition);
+        watcher = thread(&StatusPrinter::printNcurses, &statusPrinter);
 
 //init threads:
     bool stopCondition = false;
@@ -70,7 +79,7 @@ int main(int argc, char *argv[]) {
 
 //terminate program after time/keyPressed:
     bool *detectedEscapeKey = new bool(false);
-    thread *escapeKeyWatcher = new thread(&waitForEscapeKey, detectedEscapeKey, &stopCondition);
+    thread escapeKeyWatcher = thread(&waitForEscapeKey, detectedEscapeKey, &stopCondition);
     for(int i=0;;i++){
         this_thread::sleep_for(chrono::seconds(1));
         if(*detectedEscapeKey){
@@ -89,14 +98,16 @@ int main(int argc, char *argv[]) {
 //wait for threads and clear program
     for(int i=0; i < size; i++){
         while(! threads[i].joinable())
-            usleep('300');
+            usleep(300);
         threads[i].join();
     }
+    delete []threads;
     stopWatchingCondition = true;
-    escapeKeyWatcher->join();
-    if(noPhilosophersOutputPrints)
-        watcher->join();
-    delete [] threads;
+    escapeKeyWatcher.join();
+    delete detectedEscapeKey;
+    if(noPhilosophersOutputPrints){
+        watcher.join();
+    }
     cout << "all threads terminated\n";
 
 //exit
