@@ -2,13 +2,14 @@
 
 StatusPrinter::StatusPrinter(vector<Philosopher> * philosophers, vector<shared_ptr<Fork>> *forks, bool *stopCondition)
 {
-    initscr();                          //command initing ncurses lbrary
+    //commands initing ncurses lbrary
+    initscr();
     cbreak();
     noecho();
     nonl();
     intrflush(stdscr, FALSE);
     keypad(stdscr, TRUE);
-    if( has_colors() == FALSE ){
+    if(has_colors() == FALSE){
         cout << "No colour support within your console!";
         return;
     }
@@ -20,31 +21,46 @@ StatusPrinter::StatusPrinter(vector<Philosopher> * philosophers, vector<shared_p
     getmaxyx(stdscr, maxY, maxX);
 
     for(unsigned int i=0;i<this->philosophers->size();i++){
-        PhilosopherSummary s = PhilosopherSummary();
-        this->compareAndUpdatePhilosopher(&s, &philosophers->at(i));
-        s.locationY = i;
-        s.locationX = 0;
-        s.id = philosophers->at(i).getId();
-        this->summariesOfPhilosophers.push_back(s);
+        PhilosopherSummary sp = PhilosopherSummary();
+        sp.locationY = 2 * i + 1;
+        sp.locationX = 0;
+        sp.id = philosophers->at(i).getId();
+        this->compareAndUpdatePhilosopher(&sp, &philosophers->at(i));
+        this->summariesOfPhilosophers.push_back(sp);
+
+        ForkSummary sf = ForkSummary();
+        sf.locationY = 2 * i;
+//        sf.locationX = 60;
+        sf.locationX = 0;
+        sf.id = philosophers->at(i).getId();
+        this->compareAndUpdateFork(&sf, forks->at(i).get());
+        this->summariesOfForks.push_back(sf);
     }
 }
 
 StatusPrinter::~StatusPrinter(){
-    endwin();                           //command closing ncurses lbrary usage
+    //command closing ncurses lbrary usage
+    endwin();
 }
 
 void StatusPrinter::printNcurses(){
-    Philosopher *p;
-    PhilosopherSummary *s;
+    PhilosopherSummary *summary_philosopher;
+    ForkSummary *summary_fork;
     unsigned summarySize = 50;
     char *summary = new char[summarySize];
     while(! *this->stopCondition){
         for(unsigned int i=0;i<this->philosophers->size() -1;i++){
-            p = &philosophers->at(i);
-            s = &summariesOfPhilosophers.at(i);
-            if(this->compareAndUpdatePhilosopher(s, p)){
-                this->summarizePhilosopher(s, summary, summarySize);
-                printOnScreen(summary, s->locationX, s->locationY);
+            summary_philosopher = &summariesOfPhilosophers.at(i);
+            if(this->compareAndUpdatePhilosopher(summary_philosopher, &philosophers->at(i))){
+                this->summarizePhilosopher(summary_philosopher, summary, summarySize);
+                printOnScreen(summary, summary_philosopher->locationX, summary_philosopher->locationY);
+            }
+        }
+        for(unsigned int i=0;i<this->forks->size() -1;i++){
+            summary_fork = &summariesOfForks.at(i);
+            if(this->compareAndUpdateFork(summary_fork, forks->at(i).get())){
+                this->summarizeFork(summary_fork, summary, summarySize);
+                printOnScreen(summary, summary_fork->locationX, summary_fork->locationY);
             }
         }
         refresh();
@@ -57,27 +73,50 @@ void StatusPrinter::summarizePhilosopher(PhilosopherSummary *pilosopherSummary, 
     string str = "Philosopher ";
     str.append(to_string(pilosopherSummary->id));
     str.resize(19, ' ');
-    str.insert(19, pilosopherSummary->status);
+    str.insert(19, pilosopherSummary->state);
     str.resize(31, ' ');
     str.insert(31, "(LastEat=" + to_string(pilosopherSummary->timeSinceEating) + ")");
     str.resize(summarySize, ' ');
     str.copy(resultChar, str.size() + 1);
 }
 
+void StatusPrinter::summarizeFork(ForkSummary *forkSummary, char *resultChar, unsigned summarySize){
+    string str = "Fork ";
+    str.resize(13, ' ');
+    str.insert(12, to_string(forkSummary->id));
+    str.resize(19, ' ');
+    string status;
+    if(forkSummary)
+        status = "IN_USE";
+    else
+        status = "FREE";
+    str.insert(19, status);
+    str.resize(summarySize, ' ');
+    str.copy(resultChar, str.size() + 1);
+}
+
 bool StatusPrinter::compareAndUpdatePhilosopher(PhilosopherSummary *summary, Philosopher *philosopher){
     bool isChanged = false;
-    if(summary->status.compare(philosopher->getState())){
+    if(summary->state.compare(philosopher->getState())){
         isChanged = true;
-        summary->status = philosopher->getState();
+        summary->state = philosopher->getState();
     }
-    if(summary->timeSinceEating == philosopher->getTimeSinceEating()){
+    if(summary->timeSinceEating != philosopher->getTimeSinceEating()){
         isChanged = true;
-        summary->status = philosopher->getState();
+        summary->timeSinceEating = philosopher->getTimeSinceEating();
+    }
+    return isChanged;
+}
+
+bool StatusPrinter::compareAndUpdateFork(ForkSummary *summary, Fork *fork){
+    bool isChanged = false;
+    if(summary->inUse != fork->getInUse()){
+        isChanged = true;
+        summary->inUse = fork->getInUse();
     }
     return isChanged;
 }
 
 void StatusPrinter::printOnScreen(char text[], int x, int y){
-//    cout << "(" << x << "," << y << ")" << text << endl;
     mvprintw(y, x, text);
 }

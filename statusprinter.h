@@ -10,9 +10,17 @@
 struct PhilosopherSummary
 {
     int id = 0;
-    string status = "";
+    string state = "";
     int timeSinceEating = 0;
     bool dead = false;
+    int locationX;
+    int locationY;
+};
+
+struct ForkSummary
+{
+    int id = 0;
+    bool inUse;
     int locationX;
     int locationY;
 };
@@ -21,6 +29,7 @@ class StatusPrinter
 {
 private:
     vector<PhilosopherSummary> summariesOfPhilosophers;
+    vector<ForkSummary> summariesOfForks;
     vector<Philosopher> *philosophers;
     vector<shared_ptr<Fork>> *forks;
     bool *stopCondition;
@@ -33,7 +42,9 @@ public:
 
     void printNcurses();
     void summarizePhilosopher(PhilosopherSummary *pilosopherSummary, char *resultChar, unsigned summarySize);
+    void summarizeFork(ForkSummary *forkSummary, char *resultChar, unsigned summarySize);
     bool compareAndUpdatePhilosopher(PhilosopherSummary *summary, Philosopher *philosopher);
+    bool compareAndUpdateFork(ForkSummary *summary, Fork *philosopher);
     void printOnScreen(char text[], int x, int y);
 };
 
