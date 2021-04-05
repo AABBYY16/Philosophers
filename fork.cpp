@@ -19,8 +19,8 @@ void Fork::setInUse(){
     this->state = "InUse";
 }
 
-void Fork::setReserved(int philosopherId){
-    this->state = "ReservedFor" + to_string(philosopherId);
+void Fork::setReserved(int philosopherId, int attempt){
+    this->state = "ReservedFor" + to_string(philosopherId) + ":" + to_string(attempt);
 }
 
 void Fork::setFree(){

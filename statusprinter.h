@@ -12,12 +12,14 @@ struct PhilosopherSummary
 {
     int id = 0;
     string state = "";
+    string progressBar;
     int timeSinceEating = 0;
     bool dead = false;
     bool nearDeath = false;
     string nearDeathStr = "";
     int locationX;
     int locationY;
+    int colour = 0;
 };
 
 struct ForkSummary
@@ -26,6 +28,7 @@ struct ForkSummary
     string state;
     int locationX;
     int locationY;
+    int colour = 0;
 };
 
 class StatusPrinter
@@ -49,7 +52,7 @@ public:
     void summarizeFork(ForkSummary *forkSummary, char *resultChar, unsigned summarySize);
     bool compareAndUpdatePhilosopher(PhilosopherSummary *summary, Philosopher *philosopher);
     bool compareAndUpdateFork(ForkSummary *summary, Fork *philosopher);
-    void printOnScreen(char text[], int x, int y);
+    void printOnScreen(char text[], int x, int y, int colour = 0);
 };
 
 #endif // STATUSPRINTER_H

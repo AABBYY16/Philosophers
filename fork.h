@@ -26,7 +26,7 @@ public:
 
     string getState();
     void setInUse();
-    void setReserved(int philosopherId);
+    void setReserved(int philosopherId, int attempt);
     void setFree();
 
 //    int getPhilosopherId();

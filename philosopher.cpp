@@ -48,7 +48,9 @@ bool Philosopher::thinking(){
 bool Philosopher::eating(){
 //    this->print("waiting");
     this->state = "WAITING";
+    int attempt = 0;
     while(checkIfAlive()){
+        attempt++;
         //lock left fork
         this->leftFork->forkLock.lock();
 //        if(! this->leftFork->forkLock.try_lock_for(this->getDeathAfter())) {
@@ -56,7 +58,7 @@ bool Philosopher::eating(){
 //        }
 
         //try to lock right fork
-        this->leftFork->setReserved(this->id);
+        this->leftFork->setReserved(this->id, attempt);
         if(! this->rightFork->forkLock.try_lock_for(this->getTryLockTime())){
             this->leftFork->setFree();
             this->leftFork->forkLock.unlock();
@@ -126,13 +128,22 @@ void Philosopher::setState(string state){
     this->state = state;
 }
 
+string Philosopher::getProgressBar(){
+    return progressBar;
+}
+
 int Philosopher::randomTimeChunksAmount(int min, int max){
     return (min + rand() % (max-min));
 }
 void Philosopher::delay(){
+    this->progressBar[0]='[';
+    this->progressBar[11]=']';
     int sleepTime = this->randomTimeChunksAmount(minTaskTime, maxTaskTime);
-    while(sleepTime--)
+    for(int i=0;i<sleepTime;i++){
+        this->progressBar[(int)round(10*i/sleepTime + 1)] = '=';
         usleep(timeChunk);
+    }
+    this->progressBar = "            ";
 }
 
 chrono::milliseconds Philosopher::getTryLockTime(){

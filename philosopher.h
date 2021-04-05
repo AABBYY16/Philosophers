@@ -7,6 +7,7 @@
 #include <mutex>
 #include <vector>
 #include <chrono>
+#include <cmath>
 #include "fork.h"
 
 using namespace std;
@@ -29,6 +30,7 @@ private:
 //avaliable outsite variables
     int id;
     string state;
+    string progressBar = "            ";
     bool nearDeath = false;             //once true, philosopher won't be returning forks anymore as he tries to survive since now!
     bool alive = true;
 //inside variables
@@ -43,6 +45,8 @@ public:
 
     string getState();
     void setState(string state);
+
+    string getProgressBar();
 
     bool getNearDeath(){
         return nearDeath;
