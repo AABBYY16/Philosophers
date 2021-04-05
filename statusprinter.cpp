@@ -22,16 +22,16 @@ StatusPrinter::StatusPrinter(vector<Philosopher> * philosophers, vector<shared_p
 
     for(unsigned int i=0;i<this->philosophers->size();i++){
         PhilosopherSummary sp = PhilosopherSummary();
-        sp.locationY = 2 * i + 1;
+        sp.locationY = 2 * i;
         sp.locationX = 0;
         sp.id = philosophers->at(i).getId();
         this->compareAndUpdatePhilosopher(&sp, &philosophers->at(i));
         this->summariesOfPhilosophers.push_back(sp);
 
         ForkSummary sf = ForkSummary();
-        sf.locationY = 2 * i;
-//        sf.locationX = 60;
-        sf.locationX = 0;
+        sf.locationY = 2 * i + 1;
+        sf.locationX = 60;
+//        sf.locationX = 0;
         sf.id = philosophers->at(i).getId();
         this->compareAndUpdateFork(&sf, forks->at(i).get());
         this->summariesOfForks.push_back(sf);
@@ -76,6 +76,8 @@ void StatusPrinter::summarizePhilosopher(PhilosopherSummary *pilosopherSummary, 
     str.insert(19, pilosopherSummary->state);
     str.resize(31, ' ');
     str.insert(31, "(LastEat=" + to_string(pilosopherSummary->timeSinceEating) + ")");
+    str.resize(43, ' ');
+    str.insert(43, pilosopherSummary->nearDeathStr);
     str.resize(summarySize, ' ');
     str.copy(resultChar, str.size() + 1);
 }
@@ -85,12 +87,7 @@ void StatusPrinter::summarizeFork(ForkSummary *forkSummary, char *resultChar, un
     str.resize(13, ' ');
     str.insert(12, to_string(forkSummary->id));
     str.resize(19, ' ');
-    string status;
-    if(forkSummary)
-        status = "IN_USE";
-    else
-        status = "FREE";
-    str.insert(19, status);
+    str.insert(19, forkSummary->state);
     str.resize(summarySize, ' ');
     str.copy(resultChar, str.size() + 1);
 }
@@ -104,6 +101,14 @@ bool StatusPrinter::compareAndUpdatePhilosopher(PhilosopherSummary *summary, Phi
     if(summary->timeSinceEating != philosopher->getTimeSinceEating()){
         isChanged = true;
         summary->timeSinceEating = philosopher->getTimeSinceEating();
+    }
+    if(summary->nearDeath != philosopher->getNearDeath()){
+        isChanged = true;
+        summary->nearDeath = philosopher->getNearDeath();
+        if(summary->nearDeath)
+            summary->nearDeathStr = "DYING";
+        else
+            summary->nearDeathStr = "";
     }
     return isChanged;
 }

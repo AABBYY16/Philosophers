@@ -59,6 +59,7 @@ bool Philosopher::eating(){
         this->rightFork->setInUse();
 //            this->print("eating");
         this->state = "EATING";
+        nearDeath = false;
         this->delay();
 
 //            this->print("finished eating");
@@ -68,7 +69,6 @@ bool Philosopher::eating(){
         this->leftFork->setFree();
         this->leftFork->forkLock.unlock();
         lastAte = chrono::system_clock::now();
-        nearDeath = false;
         break;
     }
     return alive;
@@ -105,8 +105,12 @@ string Philosopher::getState(){
 int Philosopher::getTimeSinceEating(){
     if(state == "EATING")
         return 0;
-    auto duration = new chrono::seconds(chrono::duration_cast<chrono::seconds>(chrono::system_clock::now() - this->lastAte));
-    return duration->count();
+    else if (state == "DEAD")
+        return 99;
+    else{
+        auto duration = new chrono::seconds(chrono::duration_cast<chrono::seconds>(chrono::system_clock::now() - this->lastAte));
+        return duration->count();
+    }
 }
 
 void Philosopher::setState(string state){
@@ -143,9 +147,9 @@ bool Philosopher::checkIfAlive(){
     if(duration > chrono::milliseconds(this->survivarlTime)){
         state = "DEAD";
         alive = false;
-    } else if(duration < (survivarlTime - nearDeathTime)){
+        nearDeath = false;
+    } else if(duration > (survivarlTime - nearDeathTime)){
         nearDeath = true;
-        return true;
     }
     return alive;
 }

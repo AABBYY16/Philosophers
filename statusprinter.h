@@ -14,6 +14,8 @@ struct PhilosopherSummary
     string state = "";
     int timeSinceEating = 0;
     bool dead = false;
+    bool nearDeath = false;
+    string nearDeathStr = "";
     int locationX;
     int locationY;
 };
