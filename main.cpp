@@ -10,11 +10,12 @@
 
 using namespace std;
 
-//WARNING!!! <thread> on linux requires pthread library.
+//WARNING!!! <thread> on linux requires pthread library and visualisation requires lncurses library
 //program written in QT and problem has been resolved by adding following entries in project file(.pro):
 //    QMAKE_CXXFLAGS += -std=c++0x -pthread
 //    LIBS += -pthread
-//console solution: add "-pthread" to gcc compiller command
+//    LIBS += -lncurses
+//console solution: add "-pthread -lncurses" to gcc compiller command
 
 //program stops on ENTER key pressed!
 
@@ -25,6 +26,13 @@ int main(int argc, char *argv[]) {
         size = atoi(argv[1]) + 1;
 
 //additional arguments
+    //chunk of time how long philosopher may keep fork locked(milliseconds)
+    int tryLockTime = 1000;
+    //time after philosopher dies of hunger(milliseconds)
+    int survivarlTime = 9000;
+    //time before dying of hunger when philosopher changes a little behaviour of how he acquires fork
+    //in theory the best nearDeathTime should be maxEatingtime+tryLockTime(max time to make sure fork will be unlocked unless there are two philosophers next to each other dying of hunger)
+    int nearDeathTime = 4500;
     //switches to ugly printing each thread action change created in debugging purpose
     bool noPhilosophersOutputPrints = true;
     //program stops after X secs(0 means to never stop)(to as argument as it was forbiden in exercise description)
@@ -53,7 +61,7 @@ int main(int argc, char *argv[]) {
         //hack for italics font because amount of basic colours is not enough(works for up to 15 threads)
         if(colour > 37)
             colourStr = "3;" + to_string(colour-8);
-        philosophers.push_back(Philosopher(i, forks.at(leftForkId), forks.at(rightForkId), colourStr, noPhilosophersOutputPrints));
+        philosophers.push_back(Philosopher(i, forks.at(leftForkId), forks.at(rightForkId), survivarlTime, tryLockTime, nearDeathTime, colourStr, noPhilosophersOutputPrints));
     }
 
 ////startWatching - printCount

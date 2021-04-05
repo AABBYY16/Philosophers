@@ -16,7 +16,6 @@ public:
 //configuration
     chrono::milliseconds tryLockTime = chrono::milliseconds(1000);
     chrono::milliseconds survivarlTime = chrono::milliseconds(9000);
-    //in theory the best nearDeathTime should be maxEatingtime+tryLockTime(max time to make sure fork will be unlocked unless there are two philosophers next to each other dying of hunger)
     chrono::milliseconds nearDeathTime = chrono::milliseconds(4500);
 
     string colourRGB;
@@ -34,7 +33,7 @@ private:
     chrono::milliseconds timeSinceEating = chrono::milliseconds(0);
 
 public:
-    Philosopher(int id, shared_ptr<Fork> leftFork, shared_ptr<Fork> rightFork, string colourRGB, bool noPhilosophersOutputPrints);
+    Philosopher(int id, shared_ptr<Fork> leftFork, shared_ptr<Fork> rightFork, int survivarlTime, int tryLockTime, int nearDeathTime, string colourRGB, bool noPhilosophersOutputPrints);
     void run(bool *stopCondition);
 
     int getId();

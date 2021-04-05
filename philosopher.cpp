@@ -1,9 +1,12 @@
 #include "philosopher.h"
 
-Philosopher::Philosopher(int id, shared_ptr<Fork> leftFork, shared_ptr<Fork> rightFork, string colourRGB, bool noPhilosophersOutputPrints){
+Philosopher::Philosopher(int id, shared_ptr<Fork> leftFork, shared_ptr<Fork> rightFork, int survivarlTime, int tryLockTime, int nearDeathTime, string colourRGB, bool noPhilosophersOutputPrints){
     this->id = id;
     this->leftFork = leftFork;
     this->rightFork = rightFork;
+    this->survivarlTime = chrono::milliseconds(survivarlTime);
+    this->tryLockTime = chrono::milliseconds(tryLockTime);
+    this->nearDeathTime = chrono::milliseconds(nearDeathTime);
     this->colourRGB = colourRGB;
     this->noPhilosophersOutputPrints = noPhilosophersOutputPrints;
     string msg = "Hello, I'm philosopher nr ";
@@ -41,10 +44,11 @@ bool Philosopher::eating(){
 //    this->print("waiting");
     this->state = "WAITING";
     while(checkIfAlive()){
-        //try to lock left fork
-        if(! this->leftFork->forkLock.try_lock_for(this->getDeathAfter())) {
-            continue;
-        }
+        //lock left fork
+        this->leftFork->forkLock.lock();
+//        if(! this->leftFork->forkLock.try_lock_for(this->getDeathAfter())) {
+//            continue;
+//        }
 
         //try to lock right fork
         this->leftFork->setReserved(this->id);
