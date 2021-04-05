@@ -14,8 +14,8 @@ Philosopher::Philosopher(int id, shared_ptr<Fork> leftFork, shared_ptr<Fork> rig
 
     this->colourRGB = colourRGB;
     this->noPhilosophersOutputPrints = noPhilosophersOutputPrints;
-    string msg = "Hello, I'm philosopher nr ";
-    this->print(msg.append(to_string(id)));
+//    string msg = "Hello, I'm philosopher nr ";
+//    this->print(msg.append(to_string(id)));
 }
 
 void Philosopher::run(bool *stopCondition){
@@ -53,15 +53,13 @@ bool Philosopher::eating(){
         attempt++;
         //lock left fork
         this->leftFork->forkLock.lock();
-//        if(! this->leftFork->forkLock.try_lock_for(this->getDeathAfter())) {
-//            continue;
-//        }
 
         //try to lock right fork
         this->leftFork->setReserved(this->id, attempt);
         if(! this->rightFork->forkLock.try_lock_for(this->getTryLockTime())){
             this->leftFork->setFree();
             this->leftFork->forkLock.unlock();
+            usleep(this->timeChunk);
             continue;
         }
 
@@ -136,11 +134,14 @@ int Philosopher::randomTimeChunksAmount(int min, int max){
     return (min + rand() % (max-min));
 }
 void Philosopher::delay(){
+    int length;
     this->progressBar[0]='[';
     this->progressBar[11]=']';
     int sleepTime = this->randomTimeChunksAmount(minTaskTime, maxTaskTime);
     for(int i=0;i<sleepTime;i++){
-        this->progressBar[(int)round(10*i/sleepTime + 1)] = '=';
+        length = (int)round(10*i/sleepTime + 1);
+        this->progressBar.replace(1, length, string(length, '='));
+//        this->progressBar[(int)round(10*i/sleepTime + 1)] = '=';
         usleep(timeChunk);
     }
     this->progressBar = "            ";

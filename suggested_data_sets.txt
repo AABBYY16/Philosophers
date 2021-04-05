@@ -1,0 +1,13 @@
+timeChunk = 100;
+tryLockTime = 10;
+survivarlTime = 90;
+nearDeathTime = 45;
+int minTaskTime = 35;
+int maxTaskTime = 45;
+
+timeChunk = 500;
+tryLockTime = 2;
+survivarlTime = 18;
+nearDeathTime = 9;
+int minTaskTime = 7;
+int maxTaskTime = 9;

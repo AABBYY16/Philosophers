@@ -28,17 +28,17 @@ int main(int argc, char *argv[]) {
 
 //additional arguments
     //chunk of time defining base delays for scalling(milliseconds)
-    int timeChunk = 100;
+    int timeChunk = 500;
     //amount of time how long philosopher may keep fork locked(chunks)
-    int tryLockTime = 10;
+    int tryLockTime = 2;
     //time after philosopher dies of hunger(chunks)
-    int survivarlTime = 90;
-    //time before dying of hunger when philosopher changes a little behaviour of how he acquires fork
+    int survivarlTime = 18;
+    //time before dying of hunger when philosopher changes a little behaviour of how he acquires fork(chunks)
     //in theory the best nearDeathTime should be maxEatingtime+tryLockTime(max time to make sure fork will be unlocked unless there are two philosophers next to each other dying of hunger)
-    int nearDeathTime = 45;
-    //range from which task time will be generated
-    int minTaskTime = 35;
-    int maxTaskTime = 45;
+    int nearDeathTime = 9;
+    //range from which task time will be generated(chunks)
+    int minTaskTime = 7;
+    int maxTaskTime = 9;
     //switches to ugly printing each thread action change created in debugging purpose
     bool noPhilosophersOutputPrints = true;
     //program stops after X secs(0 means to never stop)(to as argument as it was forbiden in exercise description)
