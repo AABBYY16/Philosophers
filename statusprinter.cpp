@@ -64,7 +64,7 @@ void StatusPrinter::printNcurses(){
             }
         }
         refresh();
-        this_thread::sleep_for(std::chrono::milliseconds(10));
+        usleep(100);
     };
     delete[] summary;
 }
@@ -110,9 +110,9 @@ bool StatusPrinter::compareAndUpdatePhilosopher(PhilosopherSummary *summary, Phi
 
 bool StatusPrinter::compareAndUpdateFork(ForkSummary *summary, Fork *fork){
     bool isChanged = false;
-    if(summary->inUse != fork->getInUse()){
+    if(summary->state.compare(fork->getState())){
         isChanged = true;
-        summary->inUse = fork->getInUse();
+        summary->state = fork->getState();
     }
     return isChanged;
 }

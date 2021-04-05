@@ -38,16 +38,18 @@ static void printCout(vector<Philosopher> *philosophers,vector<shared_ptr<Fork>>
             output.append("Fork");
             output.append(to_string(forks->at(i)->getId()));
             output.append(": ");
-            if(forks->at(i)->getInUse()){
+            string state = forks->at(i)->getState();
+            if(state == "InUse"){
                 output.append(colourRed);
-                output.append("in use");
-                output.append(resetColour);
+            }
+            if(state.compare(0, 12, "ReservedFor") == 0){
+                output.append(colourOrange);
             }
             else{
                 output.append(colourGreen);
-                output.append("free");
-                output.append(resetColour);
             }
+            output.append(state);
+            output.append(resetColour);
             output.append("\n");
         }
     }

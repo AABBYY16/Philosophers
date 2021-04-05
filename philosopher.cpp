@@ -11,38 +11,67 @@ Philosopher::Philosopher(int id, shared_ptr<Fork> leftFork, shared_ptr<Fork> rig
 }
 
 void Philosopher::run(bool *stopCondition){
+    lastAte = chrono::system_clock::now();
     while(true){
-        this->thinking();
-        if(*stopCondition)
+        if(! this->thinking())
             break;
-        this->eating();
-        if(*stopCondition)
+        if(*stopCondition){
+            this->state = "FINISHED";
             break;
+        }
+        if(! this->eating())
+            break;
+        if(*stopCondition){
+            this->state = "FINISHED";
+            break;
+        }
     }
-    this->state = "FINISHED";
 }
 
-void Philosopher::thinking(){
-    this->print("thinking");
+bool Philosopher::thinking(){
+//    this->print("thinking");
     this->state = "THINKING";
     this->delay();
-    this->print("finished thinking");
-    this->state = "CHANGING_STATE";
+//    this->print("finished thinking");
+    //this should never return false as it would mean that thinking time is higher then survival time and philosopher has zero self preservation instinct...he would think himself to the death!
+    return this->checkIfAlive();
 }
-void Philosopher::eating(){
-    this->print("waiting");
+
+bool Philosopher::eating(){
+//    this->print("waiting");
     this->state = "WAITING";
-    lock_guard<std::mutex> lockLeft(this->leftFork->forkLock);
-    this->leftFork->setInUse(true);
-    lock_guard<std::mutex> lockRight(this->rightFork->forkLock);
-    this->rightFork->setInUse(true);
-    this->print("eating");
-    this->state = "EATING";
-    this->delay();
-    this->print("finished eating");
-    this->state = "CHANGING_STATE";
-    this->leftFork->setInUse(false);
-    this->rightFork->setInUse(false);
+    while(checkIfAlive()){
+        //try to lock left fork
+        if(! this->leftFork->forkLock.try_lock_for(this->getDeathAfter())) {
+            continue;
+        }
+
+        //try to lock right fork
+        this->leftFork->setReserved(this->id);
+        if(! this->rightFork->forkLock.try_lock_for(this->getTryLockTime())){
+            this->leftFork->setFree();
+            this->leftFork->forkLock.unlock();
+            continue;
+        }
+
+        //both forks locked, proceed with eating
+        this->leftFork->setInUse();
+        this->rightFork->setInUse();
+//            this->print("eating");
+        this->state = "EATING";
+        this->delay();
+
+//            this->print("finished eating");
+        //resource releasing order is reversed
+        this->rightFork->setFree();
+        this->rightFork->forkLock.unlock();
+        this->leftFork->setFree();
+        this->leftFork->forkLock.unlock();
+        lastAte = chrono::system_clock::now();
+        nearDeath = false;
+        break;
+    }
+    return alive;
 }
 
 void Philosopher::print(string text){   //builds wrapped string for thread output
@@ -74,7 +103,10 @@ string Philosopher::getState(){
 }
 
 int Philosopher::getTimeSinceEating(){
-    return this->timeSinceEating;
+    if(state == "EATING")
+        return 0;
+    auto duration = new chrono::seconds(chrono::duration_cast<chrono::seconds>(chrono::system_clock::now() - this->lastAte));
+    return duration->count();
 }
 
 void Philosopher::setState(string state){
@@ -87,4 +119,33 @@ int Philosopher::randomMilisecAmount(int min, int max){
 void Philosopher::delay(int min, int max){
     int milliseconds = Philosopher::randomMilisecAmount(min, max);
     this_thread::sleep_for(chrono::milliseconds(milliseconds));
+}
+
+chrono::milliseconds Philosopher::getTryLockTime(){
+    //returns tryLockTime from configuration unless Philosopher is about to die soonner or calls that he is near death. Then it returns time until death
+    auto deathAfter = getDeathAfter();
+    if(nearDeath || deathAfter < this->tryLockTime) {
+        return deathAfter;
+    }
+    else
+        return this->tryLockTime;
+}
+
+chrono::milliseconds Philosopher::getDeathAfter(){
+    auto now = chrono::system_clock::now();
+    auto deathAfter = new chrono::milliseconds(chrono::duration_cast<chrono::milliseconds>(lastAte + this->survivarlTime - now));
+    deathAfter->count();
+    return *deathAfter;
+}
+
+bool Philosopher::checkIfAlive(){
+    auto duration = chrono::system_clock::now() - lastAte;
+    if(duration > chrono::milliseconds(this->survivarlTime)){
+        state = "DEAD";
+        alive = false;
+    } else if(duration < (survivarlTime - nearDeathTime)){
+        nearDeath = true;
+        return true;
+    }
+    return alive;
 }

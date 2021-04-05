@@ -6,39 +6,55 @@
 #include <thread>
 #include <mutex>
 #include <vector>
+#include <chrono>
 #include "fork.h"
 
 using namespace std;
 
 class Philosopher{
-private:
-    string state;
-    int timeSinceEating = 0;
-    int id;
+public:
+//configuration
+    chrono::milliseconds tryLockTime = chrono::milliseconds(1000);
+    chrono::milliseconds survivarlTime = chrono::milliseconds(7000);
+    chrono::milliseconds nearDeathTime = chrono::milliseconds(5000);
+
     string colourRGB;
+    bool noPhilosophersOutputPrints;
     shared_ptr<Fork> leftFork;
     shared_ptr<Fork> rightFork;
-    bool noPhilosophersOutputPrints;
+private:
+//avaliable outsite variables
+    int id;
+    string state;
+    bool alive = true;
+    bool nearDeath = false;             //once true, philosopher won't be returning forks anymore as he tries to survive since now!
+//inside variables
+    chrono::time_point<chrono::system_clock> lastAte;
+    chrono::milliseconds timeSinceEating = chrono::milliseconds(0);
 
 public:
     Philosopher(int id, shared_ptr<Fork> leftFork, shared_ptr<Fork> rightFork, string colourRGB, bool noPhilosophersOutputPrints);
     void run(bool *stopCondition);
-    void thinking();
-    void eating();
-
-    void waiting();
 
     int getId();
 
     string getState();
-    int getTimeSinceEating();
     void setState(string state);
+
+    bool checkIfAlive();
+
+    int getTimeSinceEating();
 
     void print(string text);
 
-    static int randomMilisecAmount(int min, int max);
+private:
+    bool thinking();
+    bool eating();
+    static void delay(int min=2500, int max=3500);    //(milliseconds)
 
-    static void delay(int min=2000, int max=5000);    //(milliseconds)
+    static int randomMilisecAmount(int min, int max);
+    chrono::milliseconds getTryLockTime();
+    chrono::milliseconds getDeathAfter();
 };
 
 #endif // PHILOSOPHER_H

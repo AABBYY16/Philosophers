@@ -4,6 +4,7 @@
 #include <ncurses.h>
 #include <chrono>
 #include <vector>
+#include <unistd.h>
 #include <fork.h>
 #include <philosopher.h>
 
@@ -20,7 +21,7 @@ struct PhilosopherSummary
 struct ForkSummary
 {
     int id = 0;
-    bool inUse;
+    string state;
     int locationX;
     int locationY;
 };

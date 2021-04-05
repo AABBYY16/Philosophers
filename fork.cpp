@@ -3,6 +3,7 @@
 Fork::Fork(int id){
     this->id = id;
     this->inUse = false;
+    this->state = "Free";
 }
 
 
@@ -10,12 +11,20 @@ int Fork::getId(){
     return this->id;
 }
 
-bool Fork::getInUse(){
-    return this->inUse;
+string Fork::getState(){
+    return this->state;
 }
 
-void Fork::setInUse(bool inUse){
-    this->inUse = inUse;
+void Fork::setInUse(){
+    this->state = "InUse";
+}
+
+void Fork::setReserved(int philosopherId){
+    this->state = "ReservedFor" + to_string(philosopherId);
+}
+
+void Fork::setFree(){
+    this->state = "Free";
 }
 
 //int Fork::getPhilosopherId(){
