@@ -53,3 +53,6 @@ compile_commands.json
 
 #valgrind - memory leak detector logs
 valgrind-out.txt
+
+#zipped sources
+zipped
