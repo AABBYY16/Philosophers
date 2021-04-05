@@ -20,9 +20,9 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 //program arguments: ${thread_amount} (optional)
-    int size = 10;
+    int size = 5;
     if(argc > 1)
-        size = atoi(argv[1]);
+        size = atoi(argv[1]) + 1;
 
 //additional arguments
     //switches to ugly printing each thread action change created in debugging purpose
