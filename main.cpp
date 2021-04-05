@@ -23,16 +23,22 @@ int main(int argc, char *argv[]) {
 //program arguments: ${thread_amount} (optional)
     int size = 5;
     if(argc > 1)
-        size = atoi(argv[1]) + 1;
+        size = atoi(argv[1]);
+    size++;
 
 //additional arguments
-    //chunk of time how long philosopher may keep fork locked(milliseconds)
-    int tryLockTime = 1000;
-    //time after philosopher dies of hunger(milliseconds)
-    int survivarlTime = 9000;
+    //chunk of time defining base delays for scalling(milliseconds)
+    int timeChunk = 100;
+    //amount of time how long philosopher may keep fork locked(chunks)
+    int tryLockTime = 10;
+    //time after philosopher dies of hunger(chunks)
+    int survivarlTime = 90;
     //time before dying of hunger when philosopher changes a little behaviour of how he acquires fork
     //in theory the best nearDeathTime should be maxEatingtime+tryLockTime(max time to make sure fork will be unlocked unless there are two philosophers next to each other dying of hunger)
-    int nearDeathTime = 4500;
+    int nearDeathTime = 45;
+    //range from which task time will be generated
+    int minTaskTime = 35;
+    int maxTaskTime = 45;
     //switches to ugly printing each thread action change created in debugging purpose
     bool noPhilosophersOutputPrints = true;
     //program stops after X secs(0 means to never stop)(to as argument as it was forbiden in exercise description)
@@ -61,7 +67,7 @@ int main(int argc, char *argv[]) {
         //hack for italics font because amount of basic colours is not enough(works for up to 15 threads)
         if(colour > 37)
             colourStr = "3;" + to_string(colour-8);
-        philosophers.push_back(Philosopher(i, forks.at(leftForkId), forks.at(rightForkId), survivarlTime, tryLockTime, nearDeathTime, colourStr, noPhilosophersOutputPrints));
+        philosophers.push_back(Philosopher(i, forks.at(leftForkId), forks.at(rightForkId), timeChunk, survivarlTime, tryLockTime, nearDeathTime, minTaskTime, maxTaskTime, colourStr, noPhilosophersOutputPrints));
     }
 
 ////startWatching - printCount
@@ -74,7 +80,7 @@ int main(int argc, char *argv[]) {
 //startWatching - StatusPrinter(ncurses library)
     bool stopWatchingCondition = false;
     thread watcher;
-    StatusPrinter statusPrinter = StatusPrinter(&philosophers, &forks, &stopWatchingCondition);
+    StatusPrinter statusPrinter = StatusPrinter(&philosophers, &forks, &stopWatchingCondition, timeChunk);
     if(noPhilosophersOutputPrints)
         watcher = thread(&StatusPrinter::printNcurses, &statusPrinter);
 

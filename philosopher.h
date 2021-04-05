@@ -14,9 +14,12 @@ using namespace std;
 class Philosopher{
 public:
 //configuration
-    chrono::milliseconds tryLockTime = chrono::milliseconds(1000);
-    chrono::milliseconds survivarlTime = chrono::milliseconds(9000);
-    chrono::milliseconds nearDeathTime = chrono::milliseconds(4500);
+    int timeChunk=100000;
+    chrono::milliseconds tryLockTime = chrono::milliseconds(10 * timeChunk);
+    chrono::milliseconds survivarlTime = chrono::milliseconds(90 * timeChunk);
+    chrono::milliseconds nearDeathTime = chrono::milliseconds(45 * timeChunk);
+    int minTaskTime = 35;
+    int maxTaskTime = 45;
 
     string colourRGB;
     bool noPhilosophersOutputPrints;
@@ -33,7 +36,7 @@ private:
     chrono::milliseconds timeSinceEating = chrono::milliseconds(0);
 
 public:
-    Philosopher(int id, shared_ptr<Fork> leftFork, shared_ptr<Fork> rightFork, int survivarlTime, int tryLockTime, int nearDeathTime, string colourRGB, bool noPhilosophersOutputPrints);
+    Philosopher(int id, shared_ptr<Fork> leftFork, shared_ptr<Fork> rightFork, int timeChunk, int survivarlTime, int tryLockTime, int nearDeathTime, int minTaskTime, int maxTaskTime, string colourRGB, bool noPhilosophersOutputPrints);
     void run(bool *stopCondition);
 
     int getId();
@@ -54,9 +57,9 @@ public:
 private:
     bool thinking();
     bool eating();
-    static void delay(int min=2500, int max=3500);    //(milliseconds)
+    void delay();    //(milliseconds)
 
-    static int randomMilisecAmount(int min, int max);
+    int randomTimeChunksAmount(int min, int max);
     chrono::milliseconds getTryLockTime();
     chrono::milliseconds getDeathAfter();
 };

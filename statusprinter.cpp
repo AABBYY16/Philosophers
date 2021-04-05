@@ -1,6 +1,6 @@
 #include "statusprinter.h"
 
-StatusPrinter::StatusPrinter(vector<Philosopher> * philosophers, vector<shared_ptr<Fork>> *forks, bool *stopCondition)
+StatusPrinter::StatusPrinter(vector<Philosopher> * philosophers, vector<shared_ptr<Fork>> *forks, bool *stopCondition, int timeChunk)
 {
     //commands initing ncurses lbrary
     initscr();
@@ -17,6 +17,7 @@ StatusPrinter::StatusPrinter(vector<Philosopher> * philosophers, vector<shared_p
     this->philosophers = philosophers;
     this->forks = forks;
     this->stopCondition = stopCondition;
+    this->timeChunk = timeChunk*1000;
 
     getmaxyx(stdscr, maxY, maxX);
 
@@ -64,7 +65,7 @@ void StatusPrinter::printNcurses(){
             }
         }
         refresh();
-        usleep(100);
+        usleep(this->timeChunk);
     };
     delete[] summary;
 }

@@ -1,12 +1,17 @@
 #include "philosopher.h"
 
-Philosopher::Philosopher(int id, shared_ptr<Fork> leftFork, shared_ptr<Fork> rightFork, int survivarlTime, int tryLockTime, int nearDeathTime, string colourRGB, bool noPhilosophersOutputPrints){
+Philosopher::Philosopher(int id, shared_ptr<Fork> leftFork, shared_ptr<Fork> rightFork, int timeChunk, int survivarlTime, int tryLockTime, int nearDeathTime, int minTaskTime, int maxTaskTime, string colourRGB, bool noPhilosophersOutputPrints){
     this->id = id;
     this->leftFork = leftFork;
     this->rightFork = rightFork;
-    this->survivarlTime = chrono::milliseconds(survivarlTime);
-    this->tryLockTime = chrono::milliseconds(tryLockTime);
-    this->nearDeathTime = chrono::milliseconds(nearDeathTime);
+
+    this->timeChunk = timeChunk*1000;
+    this->survivarlTime = chrono::milliseconds(survivarlTime * timeChunk);
+    this->tryLockTime = chrono::milliseconds(tryLockTime * timeChunk);
+    this->nearDeathTime = chrono::milliseconds(nearDeathTime * timeChunk);
+    this->minTaskTime = minTaskTime;
+    this->maxTaskTime = maxTaskTime;
+
     this->colourRGB = colourRGB;
     this->noPhilosophersOutputPrints = noPhilosophersOutputPrints;
     string msg = "Hello, I'm philosopher nr ";
@@ -16,13 +21,13 @@ Philosopher::Philosopher(int id, shared_ptr<Fork> leftFork, shared_ptr<Fork> rig
 void Philosopher::run(bool *stopCondition){
     lastAte = chrono::system_clock::now();
     while(true){
-        if(! this->thinking())
+        if(! this->eating())
             break;
         if(*stopCondition){
             this->state = "FINISHED";
             break;
         }
-        if(! this->eating())
+        if(! this->thinking())
             break;
         if(*stopCondition){
             this->state = "FINISHED";
@@ -121,12 +126,13 @@ void Philosopher::setState(string state){
     this->state = state;
 }
 
-int Philosopher::randomMilisecAmount(int min, int max){
+int Philosopher::randomTimeChunksAmount(int min, int max){
     return (min + rand() % (max-min));
 }
-void Philosopher::delay(int min, int max){
-    int milliseconds = Philosopher::randomMilisecAmount(min, max);
-    this_thread::sleep_for(chrono::milliseconds(milliseconds));
+void Philosopher::delay(){
+    int sleepTime = this->randomTimeChunksAmount(minTaskTime, maxTaskTime);
+    while(sleepTime--)
+        usleep(timeChunk);
 }
 
 chrono::milliseconds Philosopher::getTryLockTime(){

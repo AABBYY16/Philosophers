@@ -36,11 +36,12 @@ private:
     vector<Philosopher> *philosophers;
     vector<shared_ptr<Fork>> *forks;
     bool *stopCondition;
+    int timeChunk = 1000;
 
     int maxY;
     int maxX;
 public:
-    StatusPrinter(vector<Philosopher> *philosophers, vector<shared_ptr<Fork>> *forks, bool *stopCondition);
+    StatusPrinter(vector<Philosopher> *philosophers, vector<shared_ptr<Fork>> *forks, bool *stopCondition, int timeChunk);
     ~StatusPrinter();
 
     void printNcurses();
